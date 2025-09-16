@@ -333,7 +333,7 @@ function renderFeed(){
         <img class="img" src="${p.image}" alt="post">
         <div class="info"><div style="font-weight:600">${escapeHtml(p.caption || '')}</div></div>
         <div class="actions">
-          <button class="icon-btn" onclick="toggleLike(${p.id}, this)"> ${p.likedBy && current && p.likedBy.includes(current.username)  '💖' : '??'} </button>
+          <button class="icon-btn" onclick="toggleLike(${p.id}, this)"> ${p.likedBy && current && p.likedBy.includes(current.username) '💖' : '💖'} </button>
           <div class="likes-count" id="likes-${p.id}">${p.likes} likes</div>
           <button class="icon-btn" onclick="focusComment(${p.id})">💬</button>
           <div style="flex:1"></div>
@@ -448,4 +448,5 @@ if (sessionUser()){ showPage('homePage'); } else { showPage('authPage'); }
 </script>
 </body>
 </html>
+
 
