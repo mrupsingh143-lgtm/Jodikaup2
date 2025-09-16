@@ -264,12 +264,12 @@ function updateTopButtons(){
   if (su){
     topLoginBtn.innerText = su.username;
     topLoginBtn.onclick = () => openProfile(su.username);
-    bottomLoginBtn.innerText = '🚪';   // logout
+    bottomLoginBtn.innerText = '??';   // logout
     bottomLoginBtn.onclick = handleLogout;
   } else {
     topLoginBtn.innerText = 'Login';
     topLoginBtn.onclick = showAuth;
-    bottomLoginBtn.innerText = '🔑';   // login
+    bottomLoginBtn.innerText = '??';   // login
     bottomLoginBtn.onclick = showAuth;
   }
 }
@@ -448,5 +448,6 @@ if (sessionUser()){ showPage('homePage'); } else { showPage('authPage'); }
 </script>
 </body>
 </html>
+
 
 
