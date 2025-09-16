@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Jodikaup - Frontend Demo</title>
+  <style>
+    :root{--primary:#2575fc;--bg:#f5f5f5;--card:#fff}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:#111}
+    header{background:var(--card);padding:10px 14px;border-bottom:1px solid #e3e3e3;position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;gap:12px}
+    header h1{margin:0;font-size:18px}
+    .search {flex:1}
+    .search input{width:100%;padding:8px 10px;border-radius:8px;border:1px solid #ddd}
+    main{padding:72px 14px 90px}
+    .page{display:none}
+    .active{display:block}
+    .center{display:flex;justify-content:center;align-items:center}
+    /* Auth box */
+    .auth-wrap{height:calc(100vh - 72px);display:flex;justify-content:center;align-items:center}
+    .card{background:var(--card);border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.06);padding:14px}
+    .auth{width:340px;padding:26px;text-align:center}
+    .auth h2{margin:4px 0 14px}
+    .auth input{width:100%;padding:11px;margin:8px 0;border-radius:8px;border:1px solid #ddd}
+    .btn{display:inline-block;padding:10px 14px;border-radius:10px;border:none;background:var(--primary);color:#fff;cursor:pointer}
+    .muted{color:#666;font-size:13px}
+    a.link{color:var(--primary);cursor:pointer;text-decoration:none}
+
+    /* feed */
+    .new-post{display:flex;gap:8px;align-items:center;margin-bottom:14px}
+    .new-post input[type="file"]{display:none}
+    .upload-preview{max-width:100%;border-radius:8px;margin-top:8px}
+    .post{background:var(--card);border-radius:12px;padding:0;margin-bottom:14px;overflow:hidden;border:1px solid #eee}
+    .post .top{display:flex;align-items:center;gap:10px;padding:10px}
+    .avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(45deg,#eee,#ddd);display:inline-block;object-fit:cover}
+    .post .img{width:100%;display:block}
+    .post .info{padding:10px}
+    .post .actions{display:flex;gap:10px;align-items:center;padding:8px 10px;border-top:1px solid #f0f0f0}
+    .icon-btn{background:none;border:none;font-size:18px;cursor:pointer}
+    .likes-count{font-weight:600}
+    .comments{padding:8px 10px;border-top:1px solid #fafafa}
+    .comment{font-size:14px;padding:6px 0;border-bottom:1px dashed #f1f1f1}
+    .comment input{width:100%;padding:8px;border-radius:8px;border:1px solid #eee;margin-top:8px}
+
+    /* profile */
+    .profile-head{text-align:center;padding:16px}
+    .profile-head img{width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid var(--primary)}
+    .stats{display:flex;justify-content:space-around;padding:10px 16px}
+    .follow-btn{padding:8px 12px;border-radius:8px;border:none;background:var(--primary);color:#fff;cursor:pointer}
+
+    /* bottom nav */
+    nav.bottom{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid #eaeaea;padding:8px 20px;display:flex;justify-content:space-around;align-items:center;z-index:20}
+    nav.bottom button{background:none;border:none;font-size:22px;cursor:pointer}
+    .small{font-size:12px;color:#666}
+
+    /* responsive */
+    @media (min-width:800px){
+      main{max-width:720px;margin:0 auto}
+      .auth{width:420px}
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Jodikaup</h1>
+    <div class="search">
+      <input id="searchInput" placeholder="Search posts or usernames..." />
+    </div>
+    <div id="navUser" style="min-width:70px;text-align:right">
+      <button id="topLoginBtn" class="btn" style="padding:8px 10px;font-size:13px">Login</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- LOGIN / SIGNUP -->
+    <section id="authPage" class="page active">
+      <div class="auth-wrap">
+        <div class="card auth">
+          <div id="authTabs">
+            <h2 id="tabTitle">Login</h2>
+            <div id="loginForm">
+              <input id="loginUser" placeholder="Username or Email" />
+              <input id="loginPass" type="password" placeholder="Password" />
+              <button class="btn" onclick="handleLogin()">Login</button>
+              <p class="muted">Don't have account? <a class="link" onclick="openSignup()">Signup</a></p>
+            </div>
+
+            <div id="signupForm" style="display:none">
+              <input id="suFull" placeholder="Full Name" />
+              <input id="suUser" placeholder="Username" />
+              <input id="suEmail" placeholder="Email" />
+              <input id="suPass" type="password" placeholder="Password" />
+              <button class="btn" onclick="handleSignup()">Signup</button>
+              <p class="muted">Already have account? <a class="link" onclick="openLogin()">Login</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOME -->
+    <section id="homePage" class="page">
+      <div style="margin-bottom:10px" class="card new-post">
+        <div style="flex:1">
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="avatar"></div>
+            <div style="flex:1">
+              <input id="postCaption" placeholder="Write a caption..." style="width:100%;padding:10px;border-radius:8px;border:1px solid #eee" />
+            </div>
+            <label class="btn" for="fileInput" style="padding:8px 10px;margin-left:8px">Choose</label>
+            <input id="fileInput" type="file" accept="image/*" />
+          </div>
+          <img id="previewImg" class="upload-preview" style="display:none" />
+          <div style="margin-top:8px;text-align:right">
+            <button class="btn" onclick="createPost()">Upload</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="feed"></div>
+    </section>
+
+    <!-- PROFILE -->
+    <section id="profilePage" class="page">
+      <div class="card profile-head">
+        <img id="profilePic" src="https://via.placeholder.com/100" alt="img" />
+        <h2 id="profileName">Sample Name</h2>
+        <p id="profileUser" class="muted">@username</p>
+        <p id="profileEmail" class="muted">sample@email.com</p>
+        <div style="margin-top:12px">
+          <input type="file" id="profilePicInput" accept="image/*" style="display:none" />
+          <button class="btn" id="changePicBtn" onclick="document.getElementById('profilePicInput').click()">Change Pic</button>
+          <button id="followBtn" class="follow-btn" onclick="toggleFollow()">Follow</button>
+        </div>
+      </div>
+
+      <div class="card stats">
+        <div><div id="countPosts" style="font-weight:700">0</div><div class="small">Posts</div></div>
+        <div><div id="countFollowers" style="font-weight:700">0</div><div class="small">Followers</div></div>
+        <div><div id="countFollowing" style="font-weight:700">0</div><div class="small">Following</div></div>
+      </div>
+
+      <div id="profilePosts" style="margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px"></div>
+    </section>
+  </main>
+
+  <nav class="bottom">
+    <button title="Home" onclick="showPage('homePage')">??</button>
+    <button title="Search" onclick="document.getElementById('searchInput').focus()">??</button>
+    <button title="Profile" onclick="openProfile()">??</button>
+    <button title="Login" id="bottomLoginBtn" onclick="showAuth()">??</button>
+  </nav>
+
+<script>
+const LS_USERS = 'jad_users';
+const LS_SESSION = 'jad_session';
+const LS_POSTS = 'jad_posts';
+const LS_FOLLOWS = 'jad_follows';
+
+const $ = id => document.getElementById(id);
+const save = (k,v) => localStorage.setItem(k, JSON.stringify(v));
+const load = k => JSON.parse(localStorage.getItem(k) || 'null');
+
+if (!load(LS_USERS)) {
+  const sampleUsers = [
+    {id:1, fullname:'Sample User', username:'sample', email:'sample@demo.com', pass:'1234', pic:''},
+    {id:2, fullname:'Ravi Kumar', username:'ravi', email:'ravi@demo.com', pass:'1234', pic:''}
+  ];
+  save(LS_USERS, sampleUsers);
+}
+if (!load(LS_POSTS)) {
+  const samplePosts = [
+    {id:1,userId:1, username:'sample', fullname:'Sample User', image:'https://via.placeholder.com/600x300?text=Demo+1', caption:'Hello world', likes:3, likedBy:[], comments:[] , createdAt:Date.now()},
+    {id:2,userId:2, username:'ravi', fullname:'Ravi Kumar', image:'https://via.placeholder.com/600x300?text=Demo+2', caption:'Nice day!', likes:1, likedBy:[], comments:[] , createdAt:Date.now()-100000}
+  ];
+  save(LS_POSTS, samplePosts);
+}
+if (!load(LS_FOLLOWS)) save(LS_FOLLOWS, {});
+
+let users = load(LS_USERS);
+let posts = load(LS_POSTS);
+let follows = load(LS_FOLLOWS);
+let session = load(LS_SESSION);
+
+const authPage = $('authPage'), homePage = $('homePage'), profilePage = $('profilePage');
+const feedEl = $('feed'), profileName = $('profileName'), profileUser = $('profileUser'), profileEmail = $('profileEmail'), profilePic = $('profilePic');
+const countFollowers = $('countFollowers'), countFollowing = $('countFollowing'), countPosts = $('countPosts'), profilePosts = $('profilePosts');
+const followBtn = $('followBtn'), topLoginBtn = $('topLoginBtn'), bottomLoginBtn = $('bottomLoginBtn');
+const searchInput = $('searchInput');
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  $(id).classList.add('active');
+  if (id === 'homePage') renderFeed();
+  if (id === 'profilePage') renderProfile(sessionUser().username);
+}
+
+function sessionUser() {
+  session = load(LS_SESSION);
+  if (!session) return null;
+  return users.find(u => u.username === session.username) || null;
+}
+function requireLogin() {
+  if (!sessionUser()) {
+    alert('Please login/signup first.');
+    showAuth();
+    return false;
+  }
+  return true;
+}
+
+function showAuth() {
+  $('authPage').classList.add('active');
+  homePage.classList.remove('active');
+  profilePage.classList.remove('active');
+}
+function openSignup(){
+  $('tabTitle').innerText='Signup';
+  $('loginForm').style.display='none';
+  $('signupForm').style.display='block';
+  showAuth();
+}
+function openLogin(){
+  $('tabTitle').innerText='Login';
+  $('loginForm').style.display='block';
+  $('signupForm').style.display='none';
+  showAuth();
+}
+function handleSignup(){
+  const fullname = $('suFull').value.trim();
+  const username = $('suUser').value.trim();
+  const email = $('suEmail').value.trim();
+  const pass = $('suPass').value;
+  if (!fullname||!username||!email||!pass){ alert('Fill all fields'); return; }
+  if (users.find(u=>u.username===username || u.email===email)) { alert('Username or email exists'); return; }
+  const id = users.length ? Math.max(...users.map(u=>u.id)) + 1 : 1;
+  users.push({id, fullname, username, email, pass, pic:''});
+  save(LS_USERS, users);
+  save(LS_SESSION, {username});
+  updateTopButtons();
+  alert('Signup successful!');
+  showPage('homePage');
+}
+function handleLogin(){
+  const u = $('loginUser').value.trim();
+  const p = $('loginPass').value;
+  const user = users.find(x => x.username===u || x.email===u);
+  if (!user || user.pass !== p) { alert('Invalid credentials'); return; }
+  save(LS_SESSION, {username: user.username});
+  updateTopButtons();
+  alert('Logged in as '+user.username);
+  showPage('homePage');
+}
+function handleLogout(){
+  localStorage.removeItem(LS_SESSION);
+  updateTopButtons();
+  alert('Logged out');
+  showPage('authPage');
+}
+
+function updateTopButtons(){
+  const su = sessionUser();
+  if (su){
+    topLoginBtn.innerText = su.username;
+    topLoginBtn.onclick = () => openProfile(su.username);
+    bottomLoginBtn.innerText = '??';   // logout
+    bottomLoginBtn.onclick = handleLogout;
+  } else {
+    topLoginBtn.innerText = 'Login';
+    topLoginBtn.onclick = showAuth;
+    bottomLoginBtn.innerText = '??';   // login
+    bottomLoginBtn.onclick = showAuth;
+  }
+}
+updateTopButtons();
+
+const fileInput = $('fileInput'), previewImg = $('previewImg');
+fileInput.addEventListener('change', e=>{
+  const f = e.target.files[0];
+  if (!f) { previewImg.style.display='none'; return; }
+  const reader = new FileReader();
+  reader.onload = ev => { previewImg.src = ev.target.result; previewImg.style.display = 'block'; };
+  reader.readAsDataURL(f);
+});
+
+function createPost(){
+  if (!requireLogin()) return;
+  const file = fileInput.files[0];
+  const caption = $('postCaption').value.trim();
+  if (!file) { alert('Choose an image'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const id = posts.length ? Math.max(...posts.map(p=>p.id))+1 : 1;
+    const user = sessionUser();
+    const obj = {
+      id, userId: user.id, username: user.username, fullname: user.fullname,
+      image: ev.target.result, caption, likes:0, likedBy:[], comments:[], createdAt:Date.now()
+    };
+    posts.unshift(obj);
+    save(LS_POSTS, posts);
+    previewImg.style.display='none'; fileInput.value=''; $('postCaption').value='';
+    renderFeed();
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderFeed(){
+  posts = load(LS_POSTS) || [];
+  const q = (searchInput.value || '').toLowerCase().trim();
+  const current = sessionUser();
+  let filtered = posts.filter(p => {
+    const match = !q || p.caption.toLowerCase().includes(q) || p.username.toLowerCase().includes(q) || p.fullname.toLowerCase().includes(q);
+    if (current){
+      const myF = follows[current.username] || [];
+      return match && (p.username === current.username || myF.includes(p.username));
+    }
+    return match;
+  });
+  let out = '';
+  if (filtered.length===0) out = '<div class="muted center card" style="padding:18px">No posts found</div>';
+  filtered.forEach(p=>{
+    out += `
+      <div class="post card" data-id="${p.id}">
+        <div class="top">
+          <img class="avatar" src="${getUserPic(p.username)}" />
+          <div style="flex:1">
+            <div style="font-weight:700">${escapeHtml(p.fullname)}</div>
+            <div class="small muted">@${escapeHtml(p.username)}</div>
+          </div>
+          <div class="small muted">${timeAgo(p.createdAt)}</div>
+        </div>
+        <img class="img" src="${p.image}" alt="post">
+        <div class="info"><div style="font-weight:600">${escapeHtml(p.caption || '')}</div></div>
+        <div class="actions">
+          <button class="icon-btn" onclick="toggleLike(${p.id}, this)"> ${p.likedBy && current && p.likedBy.includes(current.username) ? '??' : '??'} </button>
+          <div class="likes-count" id="likes-${p.id}">${p.likes} likes</div>
+          <button class="icon-btn" onclick="focusComment(${p.id})">??</button>
+          <div style="flex:1"></div>
+          <button class="icon-btn" onclick="openProfile('${p.username}')">??</button>
+        </div>
+        <div class="comments">
+          ${p.comments.map(c=>`<div class="comment"><b>${escapeHtml(c.user)}:</b> ${escapeHtml(c.text)}</div>`).join('')}
+          <input id="cmt-${p.id}" placeholder="Add a comment..." onkeydown="if(event.key==='Enter'){addComment(${p.id}, this)}" />
+        </div>
+      </div>
+    `;
+  });
+  feedEl.innerHTML = out;
+}
+function getUserPic(username){
+  const u = users.find(x=>x.username===username);
+  return u && u.pic ? u.pic : 'https://via.placeholder.com/50';
+}
+function toggleLike(postId, el){
+  const cur = sessionUser(); if (!cur){ alert('Login to like'); return; }
+  const post = posts.find(p=>p.id===postId);
+  if (!post) return;
+  if (!post.likedBy) post.likedBy = [];
+  if (post.likedBy.includes(cur.username)){
+    post.likedBy = post.likedBy.filter(x=>x!==cur.username);
+  } else {
+    post.likedBy.push(cur.username);
+  }
+  post.likes = post.likedBy.length;
+  save(LS_POSTS, posts);
+  renderFeed();
+}
+function focusComment(id){ $('cmt-'+id).focus(); }
+function addComment(id, input){
+  if (!requireLogin()) return;
+  const val = input.value.trim();
+  if (!val) return;
+  const u = sessionUser();
+  const post = posts.find(p=>p.id===id);
+  post.comments.push({user:u.username, text:val});
+  save(LS_POSTS, posts);
+  renderFeed();
+}
+
+function openProfile(username){
+  let target;
+  if (!username){
+    target = sessionUser();
+  } else {
+    target = users.find(u=>u.username===username);
+  }
+  if (!target){ alert('No user found'); return; }
+  profileName.innerText = target.fullname;
+  profileUser.innerText = '@'+target.username;
+  profileEmail.innerText = target.email;
+  profilePic.src = target.pic || 'https://via.placeholder.com/100';
+  const cur = sessionUser();
+  if (cur && cur.username === target.username){
+    $('changePicBtn').style.display='inline-block';
+    followBtn.style.display='none';
+  } else {
+    $('changePicBtn').style.display='none';
+    followBtn.style.display='inline-block';
+    const f = follows[cur?.username] || [];
+    followBtn.innerText = f.includes(target.username) ? 'Unfollow' : 'Follow';
+  }
+  const userPosts = posts.filter(p=>p.username===target.username);
+  profilePosts.innerHTML = userPosts.map(p=>`<img src="${p.image}" style="width:100%;border-radius:8px" />`).join('');
+  countPosts.innerText = userPosts.length;
+  const followersCount = Object.values(follows).filter(arr=>arr.includes(target.username)).length;
+  countFollowers.innerText = followersCount;
+  const followingCount = (follows[target.username] || []).length;
+  countFollowing.innerText = followingCount;
+  showPage('profilePage');
+}
+
+function toggleFollow(){
+  if (!requireLogin()) return;
+  const target = profileUser.innerText.slice(1);
+  const cur = sessionUser().username;
+  if (!follows[cur]) follows[cur] = [];
+  const idx = follows[cur].indexOf(target);
+  if (idx>-1) follows[cur].splice(idx,1); else follows[cur].push(target);
+  save(LS_FOLLOWS, follows);
+  openProfile(target);
+}
+
+$('profilePicInput').addEventListener('change', e=>{
+  const f = e.target.files[0]; if (!f) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    const u = sessionUser(); if (!u) return;
+    u.pic = ev.target.result;
+    save(LS_USERS, users);
+    openProfile(u.username);
+  };
+  reader.readAsDataURL(f);
+});
+
+searchInput.addEventListener('input', ()=>renderFeed());
+
+function escapeHtml(str){ return str.replace(/[&<>'"]/g, t=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[t])); }
+function timeAgo(ts){
+  const diff = (Date.now()-ts)/1000;
+  if (diff<60) return Math.floor(diff)+'s';
+  if (diff<3600) return Math.floor(diff/60)+'m';
+  if (diff<86400) return Math.floor(diff/3600)+'h';
+  return Math.floor(diff/86400)+'d';
+}
+
+if (sessionUser()){ showPage('homePage'); } else { showPage('authPage'); }
+</script>
+</body>
+</html>
