@@ -146,10 +146,10 @@
   </main>
 
   <nav class="bottom">
-    <button title="Home" onclick="showPage('homePage')">??</button>
-    <button title="Search" onclick="document.getElementById('searchInput').focus()">??</button>
-    <button title="Profile" onclick="openProfile()">??</button>
-    <button title="Login" id="bottomLoginBtn" onclick="showAuth()">??</button>
+    <button title="Home" onclick="showPage('homePage')">🏠</button>
+    <button title="Search" onclick="document.getElementById('searchInput').focus()">🔍</button>
+    <button title="Profile" onclick="openProfile()">👤</button>
+    <button title="Login" id="bottomLoginBtn" onclick="showAuth()">🔑</button>
   </nav>
 
 <script>
@@ -264,12 +264,12 @@ function updateTopButtons(){
   if (su){
     topLoginBtn.innerText = su.username;
     topLoginBtn.onclick = () => openProfile(su.username);
-    bottomLoginBtn.innerText = '??';   // logout
+    bottomLoginBtn.innerText = '🚪';   // logout
     bottomLoginBtn.onclick = handleLogout;
   } else {
     topLoginBtn.innerText = 'Login';
     topLoginBtn.onclick = showAuth;
-    bottomLoginBtn.innerText = '??';   // login
+    bottomLoginBtn.innerText = '🔑';   // login
     bottomLoginBtn.onclick = showAuth;
   }
 }
@@ -333,11 +333,11 @@ function renderFeed(){
         <img class="img" src="${p.image}" alt="post">
         <div class="info"><div style="font-weight:600">${escapeHtml(p.caption || '')}</div></div>
         <div class="actions">
-          <button class="icon-btn" onclick="toggleLike(${p.id}, this)"> ${p.likedBy && current && p.likedBy.includes(current.username) ? '??' : '??'} </button>
+          <button class="icon-btn" onclick="toggleLike(${p.id}, this)"> ${p.likedBy && current && p.likedBy.includes(current.username)  '💖' : '??'} </button>
           <div class="likes-count" id="likes-${p.id}">${p.likes} likes</div>
-          <button class="icon-btn" onclick="focusComment(${p.id})">??</button>
+          <button class="icon-btn" onclick="focusComment(${p.id})">💬</button>
           <div style="flex:1"></div>
-          <button class="icon-btn" onclick="openProfile('${p.username}')">??</button>
+          <button class="icon-btn" onclick="openProfile('${p.username}')">👤</button>
         </div>
         <div class="comments">
           ${p.comments.map(c=>`<div class="comment"><b>${escapeHtml(c.user)}:</b> ${escapeHtml(c.text)}</div>`).join('')}
@@ -448,3 +448,4 @@ if (sessionUser()){ showPage('homePage'); } else { showPage('authPage'); }
 </script>
 </body>
 </html>
+
